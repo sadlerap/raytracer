@@ -42,3 +42,27 @@ impl Intersectable for Sphere {
         d < self.radius.powi(2)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn test_intersect() {
+        let sphere = Sphere::new(Point3::new(1.0, 1.0, 1.0), 1.0, Color::new(1.0, 1.0, 1.0));
+        let ray = Ray {
+            source: Point3::new(0.0, 0.0, 0.0),
+            direction: Vector3::new(1.0, 1.0, 1.0),
+        };
+        assert!(sphere.intersect(&ray));
+    }
+
+    #[test]
+    fn test_near_miss() {
+        let sphere = Sphere::new(Point3::new(1.0, 1.0, 1.0), 1.0, Color::new(1.0, 1.0, 1.0));
+        let ray = Ray {
+            source: Point3::new(0.0, 0.0, 0.0),
+            direction: Vector3::new(0.0, 0.0, 1.0),
+        };
+        assert!(!sphere.intersect(&ray));
+    }
+}
