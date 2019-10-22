@@ -79,12 +79,11 @@ impl Scene {
             .geometry
             .iter()
             .filter(|&sphere| sphere.intersect(&ray))
-            .sorted_by(|&sphere1, &sphere2| {
+            .min_by(|&sphere1, &sphere2| {
                 let d1 = sphere1.center.coords - &ray.source.coords;
                 let d2 = sphere2.center.coords - &ray.source.coords;
                 d1.dot(&d1).partial_cmp(&d2.dot(&d2)).unwrap()
             })
-            .nth(0)
         {
             return sphere.color.clone();
         }
