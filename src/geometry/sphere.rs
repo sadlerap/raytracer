@@ -1,16 +1,5 @@
-/// All various kinds of scene geometry: Spheres, Planes, etc.
+use crate::{geometry::Intersectable, Color, Ray};
 use nalgebra::Point3;
-
-use super::*;
-
-pub trait Intersectable {
-    /// Determines whether the ray will intersect the given object
-    fn intersect(&self, ray: &Ray) -> bool;
-}
-
-trait Geometry {
-    fn position(&self) -> Point3<f64>;
-}
 
 /// A sphere.
 pub struct Sphere {
@@ -46,6 +35,7 @@ impl Intersectable for Sphere {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use nalgebra::Vector3;
     #[test]
     fn test_intersect() {
         let sphere = Sphere::new(Point3::new(1.0, 1.0, 1.0), 1.0, Color::new(1.0, 1.0, 1.0));
