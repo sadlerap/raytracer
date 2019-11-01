@@ -6,17 +6,17 @@ use geometry::*;
 
 pub mod geometry;
 
-/// Stores a color using `f64`s
+/// Stores a color using `f32`s
 #[derive(Clone, Debug, PartialEq)]
 pub struct Color {
-    red: f64,
-    green: f64,
-    blue: f64,
+    red: f32,
+    green: f32,
+    blue: f32,
 }
 
 impl Color {
     /// Constructs a new color
-    pub fn new(red: f64, green: f64, blue: f64) -> Color {
+    pub fn new(red: f32, green: f32, blue: f32) -> Color {
         Color { red, green, blue }
     }
 
@@ -30,19 +30,19 @@ impl Color {
 }
 
 pub struct Ray {
-    source: Point3<f64>,
-    direction: Vector3<f64>,
+    source: Point3<f32>,
+    direction: Vector3<f32>,
 }
 
 pub struct Scene {
     height: u32,
     width: u32,
-    fov: f64,
+    fov: f32,
     geometry: Vec<Sphere>,
 }
 
 impl Scene {
-    pub fn new(width: u32, height: u32, fov: f64) -> Scene {
+    pub fn new(width: u32, height: u32, fov: f32) -> Scene {
         Scene {
             height,
             width,
@@ -62,11 +62,11 @@ impl Scene {
         // for now, assume that images are wider than they are tall
         assert!(self.height < self.width);
         let fov_adjustment = (self.fov.to_radians() / 2.0).tan();
-        let aspect_ratio = (self.width as f64) / (self.height as f64);
+        let aspect_ratio = (self.width as f32) / (self.height as f32);
 
         let camera_x =
-            (((x as f64 + 0.5) / self.width as f64) * 2.0 - 1.0) * aspect_ratio * fov_adjustment;
-        let camera_y = 1.0 - ((y as f64 + 0.5) / self.height as f64) * 2.0;
+            (((x as f32 + 0.5) / self.width as f32) * 2.0 - 1.0) * aspect_ratio * fov_adjustment;
+        let camera_y = 1.0 - ((y as f32 + 0.5) / self.height as f32) * 2.0;
         Ray {
             source: Point3::new(0.0, 0.0, 0.0),
             direction: Vector3::new(camera_x, camera_y, 1.0).normalize(),

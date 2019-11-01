@@ -5,13 +5,13 @@ use crate::{geometry::Intersectable, Color, Ray};
 /// A sphere.
 #[derive(Debug)]
 pub struct Sphere {
-    pub center: Point3<f64>,
-    pub radius: f64,
+    pub center: Point3<f32>,
+    pub radius: f32,
     pub color: Color,
 }
 
 impl Sphere {
-    pub fn new(center: Point3<f64>, radius: f64, color: Color) -> Sphere {
+    pub fn new(center: Point3<f32>, radius: f32, color: Color) -> Sphere {
         Sphere {
             center,
             radius,
@@ -24,7 +24,7 @@ impl Intersectable for Sphere {
     /// Determines whether the ray will intersect the sphere. See
     /// [here](https://bheisler.github.io/post/writing-raytracer-in-rust-part-2/)
     /// for more information on how this works.
-    fn intersect(&self, ray: &Ray) -> Option<f64> {
+    fn intersect(&self, ray: &Ray) -> Option<f32> {
         // length of leg a of the triangle
         let direct_distance: Vector3<_> = self.center - ray.source;
         // length of the hypotenuse
@@ -63,7 +63,7 @@ mod tests {
             direction: Vector3::new(1.0, 1.0, 1.0).normalize(),
         };
         let result = sphere.intersect(&ray);
-        assert!(result.unwrap() - (3.0 as f64).sqrt() - 1.0 <= 1e-6);
+        assert!(result.unwrap() - (3.0 as f32).sqrt() - 1.0 <= 1e-6);
     }
 
     #[test]
