@@ -17,6 +17,8 @@ fn main() {
     ));
     let image = scene.render();
 
-    let file = env::args().nth(1).unwrap_or("./output.png".to_string());
+    let file = env::args()
+        .nth(1)
+        .unwrap_or_else(|| "./output.png".to_string());
     image.save(file).expect("Unable to save file");
 }

@@ -7,7 +7,7 @@ use geometry::*;
 pub mod geometry;
 
 /// Stores a color using `f64`s
-#[derive(Clone)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Color {
     red: f64,
     green: f64,
@@ -69,36 +69,45 @@ impl Scene {
         let camera_y = 1.0 - ((y as f64 + 0.5) / self.height as f64) * 2.0;
         Ray {
             source: Point3::new(0.0, 0.0, 0.0),
-            direction: Vector3::new(camera_x, camera_y, -1.0).normalize(),
+            direction: Vector3::new(camera_x, camera_y, 1.0).normalize(),
         }
     }
 
     fn trace(&self, x: u32, y: u32) -> Color {
         let ray = self.create_camera_ray(x, y);
-        if let Some(sphere) = self
-            .geometry
+        self.geometry
             .iter()
-            .filter(|&sphere| sphere.intersect(&ray))
-            .min_by(|&sphere1, &sphere2| {
-                let d1 = sphere1.center.coords - &ray.source.coords;
-                let d2 = sphere2.center.coords - &ray.source.coords;
-                d1.dot(&d1).partial_cmp(&d2.dot(&d2)).unwrap()
-            })
-        {
-            return sphere.color.clone();
-        }
-        Color::new(0.0, 0.0, 0.0)
+            .filter_map(|sphere| sphere.intersect(&ray).map(|d| (sphere, d)))
+            .min_by(|(_, d1), (_, d2)| d1.partial_cmp(d2).unwrap())
+            .map_or_else(
+                || Color::new(0.0, 0.0, 0.0),
+                |(sphere, _)| sphere.color.clone(),
+            )
     }
 
     pub fn render(&self) -> DynamicImage {
         let mut image = DynamicImage::new_rgb8(self.width, self.height);
         (0..self.width)
-            .into_iter()
             .cartesian_product(0..self.height)
             .map(|(x, y)| (x, y, self.trace(x, y).to_rgb()))
             .for_each(|(x, y, (red, green, blue))| {
                 image.put_pixel(x, y, Pixel::from_channels(red, green, blue, 255))
             });
         image
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_color() {
+        let color = Color::new(1.0, 1.0, 1.0);
+        let sphere = Sphere::new(Point3::new(0.0, 0.0, 1.0), 1.0, Color::new(1.0, 1.0, 1.0));
+        let mut scene = Scene::new(4, 3, 90.0);
+        scene.add_sphere(sphere);
+        let result = scene.trace(3, 2);
+        assert_eq!(result, color);
     }
 }

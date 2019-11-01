@@ -6,5 +6,5 @@ pub use sphere::*;
 
 pub trait Intersectable {
     /// Determines whether the ray will intersect the given object
-    fn intersect(&self, ray: &Ray) -> bool;
+    fn intersect(&self, ray: &Ray) -> Option<f64>;
 }
