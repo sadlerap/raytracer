@@ -1,13 +1,14 @@
 use nalgebra::{Point3, Vector3};
 
+use super::*;
 use crate::{geometry::Intersectable, Color, Ray};
 
 /// A sphere.
 #[derive(Debug)]
 pub struct Sphere {
-    pub center: Point3<f32>,
-    pub radius: f32,
-    pub color: Color,
+    pub(crate) center: Point3<f32>,
+    pub(crate) radius: f32,
+    pub(crate) color: Color,
 }
 
 impl Sphere {
@@ -46,6 +47,12 @@ impl Intersectable for Sphere {
         } else {
             Some(t0.min(t1))
         }
+    }
+}
+
+impl From<Sphere> for Geometry {
+    fn from(s: Sphere) -> Self {
+        Geometry::Sphere(s)
     }
 }
 

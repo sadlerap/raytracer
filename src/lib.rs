@@ -7,7 +7,7 @@ use geometry::*;
 pub mod geometry;
 
 /// Stores a color using `f32`s
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Default)]
 pub struct Color {
     red: f32,
     green: f32,
@@ -34,11 +34,12 @@ pub struct Ray {
     direction: Vector3<f32>,
 }
 
+/// Defines a scene
 pub struct Scene {
     height: u32,
     width: u32,
     fov: f32,
-    geometry: Vec<Sphere>,
+    geometry: Vec<Geometry>,
 }
 
 impl Scene {
@@ -52,8 +53,8 @@ impl Scene {
     }
 
     /// Adds a sphere to the scene.
-    pub fn add_sphere(&mut self, sphere: Sphere) {
-        self.geometry.push(sphere);
+    pub fn add_geometry(&mut self, object: Geometry) {
+        self.geometry.push(object);
     }
 
     /// Creates a prime ray for the pixel at the coordinate (x, y) in image space.  This uses the
@@ -73,6 +74,7 @@ impl Scene {
         }
     }
 
+    /// Trace a ray
     fn trace(&self, x: u32, y: u32) -> Color {
         let ray = self.create_camera_ray(x, y);
         self.geometry
@@ -81,7 +83,7 @@ impl Scene {
             .min_by(|(_, d1), (_, d2)| d1.partial_cmp(d2).unwrap())
             .map_or_else(
                 || Color::new(0.0, 0.0, 0.0),
-                |(sphere, _)| sphere.color.clone(),
+                |(sphere, _)| sphere.color().clone(),
             )
     }
 
@@ -106,7 +108,7 @@ mod tests {
         let color = Color::new(1.0, 1.0, 1.0);
         let sphere = Sphere::new(Point3::new(0.0, 0.0, 1.0), 1.0, Color::new(1.0, 1.0, 1.0));
         let mut scene = Scene::new(4, 3, 90.0);
-        scene.add_sphere(sphere);
+        scene.add_geometry(sphere.into());
         let result = scene.trace(3, 2);
         assert_eq!(result, color);
     }
