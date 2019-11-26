@@ -2,3 +2,6 @@
 **/*.rs.bk
 /.idea
 .tags
+
+# output file
+output.png
