@@ -7,7 +7,7 @@ use geometry::*;
 pub mod geometry;
 
 /// Stores a color using `f32`s
-#[derive(Clone, Debug, PartialEq, Default)]
+#[derive(Clone, Debug, PartialEq, Default, Copy)]
 pub struct Color {
     red: f32,
     green: f32,
@@ -81,10 +81,7 @@ impl Scene {
             .iter()
             .filter_map(|sphere| sphere.intersect(&ray).map(|d| (sphere, d)))
             .min_by(|(_, d1), (_, d2)| d1.partial_cmp(d2).unwrap())
-            .map_or_else(
-                || Color::new(0.0, 0.0, 0.0),
-                |(sphere, _)| sphere.color().clone(),
-            )
+            .map_or_else(|| Color::new(0.0, 0.0, 0.0), |(sphere, _)| sphere.color())
     }
 
     pub fn render(&self) -> DynamicImage {

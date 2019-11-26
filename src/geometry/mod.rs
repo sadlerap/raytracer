@@ -17,10 +17,10 @@ pub enum Geometry {
 }
 
 impl Geometry {
-    pub fn color(&self) -> &Color {
+    pub fn color(&self) -> Color {
         match self {
-            Geometry::Sphere(s) => &s.color,
-            Geometry::Plane(p) => &p.color,
+            Geometry::Sphere(s) => s.color,
+            Geometry::Plane(p) => p.color,
         }
     }
 }
