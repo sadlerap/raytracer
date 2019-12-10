@@ -9,7 +9,7 @@ use raytracer::*;
 use std::env;
 
 fn main() {
-    let mut scene = Scene::new(1920, 1080, 90.0);
+    let mut scene = Scene::new(1920, 1080, 90.0, 100);
 
     scene.add_geometry(
         Sphere::new(Point3::new(0.0, 0.0, 5.0), 1.0, Color::new(0.5, 0.0, 0.2)).into(),
