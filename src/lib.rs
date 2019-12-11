@@ -1,8 +1,10 @@
 use geometry::*;
-use image::{DynamicImage, GenericImage, Pixel};
 use itertools::Itertools;
 use nalgebra::*;
 use rand::prelude::*;
+
+use std::io;
+use std::io::prelude::*;
 
 pub mod geometry;
 
@@ -104,15 +106,21 @@ impl Scene {
         )
     }
 
-    pub fn render(&self) -> DynamicImage {
-        let mut image = DynamicImage::new_rgb8(self.width, self.height);
-        (0..self.width)
-            .cartesian_product(0..self.height)
-            .map(|(x, y)| (x, y, self.trace(x, y).to_rgb()))
-            .for_each(|(x, y, (red, green, blue))| {
-                image.put_pixel(x, y, Pixel::from_channels(red, green, blue, 255))
-            });
-        image
+    pub fn render<T>(&self, writer: &mut T) -> io::Result<()>
+    where
+        T: Write,
+    {
+        writeln!(writer, "P3")?;
+        writeln!(writer, "{} {}", self.width, self.height)?;
+        writeln!(writer, "255")?;
+
+        (0..self.height)
+            .cartesian_product(0..self.width)
+            .map(|(y, x)| self.trace(x, y).to_rgb())
+            .map(|(red, green, blue)| writeln!(writer, "{} {} {}", red, green, blue))
+            .filter(|result| result.is_err())
+            .nth(0)
+            .unwrap_or_else(|| Ok(()))
     }
 }
 

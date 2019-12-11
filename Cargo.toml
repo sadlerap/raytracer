@@ -9,5 +9,4 @@ edition = "2018"
 [dependencies]
 nalgebra = "0.18"
 itertools = "0.8"
-image = "0.22.3"
 rand = "0.7.2"

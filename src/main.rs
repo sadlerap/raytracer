@@ -1,4 +1,3 @@
-extern crate image;
 extern crate itertools;
 extern crate nalgebra;
 
@@ -7,8 +6,10 @@ use raytracer::geometry::*;
 use raytracer::*;
 
 use std::env;
+use std::io;
+use std::fs::File;
 
-fn main() {
+fn main() -> io::Result<()> {
     let mut scene = Scene::new(1920, 1080, 90.0, 100);
 
     scene.add_geometry(
@@ -29,10 +30,11 @@ fn main() {
         .into(),
     );
 
-    let image = scene.render();
+    let mut file = env::args().nth(1).map_or_else(
+        || File::create("./output.ppd"),
+        File::create,
+    )?;
 
-    let file = env::args()
-        .nth(1)
-        .unwrap_or_else(|| "./output.png".to_string());
-    image.save(file).expect("Unable to save file");
+    scene.render(&mut file)?;
+    Ok(())
 }
