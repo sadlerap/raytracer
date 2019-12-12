@@ -2,12 +2,11 @@ extern crate itertools;
 extern crate nalgebra;
 
 use nalgebra::*;
-use raytracer::geometry::*;
-use raytracer::*;
+use raytracer::prelude::*;
 
 use std::env;
-use std::io;
 use std::fs::File;
+use std::io;
 
 fn main() -> io::Result<()> {
     let mut scene = Scene::new(1920, 1080, 90.0, 100);
@@ -30,10 +29,10 @@ fn main() -> io::Result<()> {
         .into(),
     );
 
-    let mut file = env::args().nth(1).map_or_else(
-        || File::create("./output.ppd"),
-        File::create,
-    )?;
+    let mut file = env::args()
+        .nth(1)
+        .map_or_else(|| File::create("./output.ppd"), File::create)
+        .map(io::BufWriter::new)?;
 
     scene.render(&mut file)?;
     Ok(())
