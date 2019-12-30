@@ -1,22 +1,22 @@
 use nalgebra::{Point3, Vector3};
 
 use super::*;
-use crate::{geometry::Intersectable, Color, Ray};
+use crate::prelude::*;
 
 /// A sphere.
 #[derive(Debug)]
 pub struct Sphere {
     pub(crate) center: Point3<f32>,
     pub(crate) radius: f32,
-    pub(crate) color: Color,
+    pub(crate) material: Material,
 }
 
 impl Sphere {
-    pub fn new(center: Point3<f32>, radius: f32, color: Color) -> Sphere {
+    pub fn new(center: Point3<f32>, radius: f32, material: Material) -> Sphere {
         Sphere {
             center,
             radius,
-            color,
+            material,
         }
     }
 }
@@ -25,7 +25,7 @@ impl Intersectable for Sphere {
     /// Determines whether the ray will intersect the sphere. See
     /// [here](https://bheisler.github.io/post/writing-raytracer-in-rust-part-2/)
     /// for more information on how this works.
-    fn intersect(&self, ray: &Ray) -> Option<f32> {
+    fn intersect(&self, ray: &Ray) -> Option<Intersection> {
         // length of leg a of the triangle
         let direct_distance: Vector3<_> = self.center - ray.source;
         // length of the hypotenuse
@@ -45,7 +45,10 @@ impl Intersectable for Sphere {
         if t0 < 0.0 && t1 < 0.0 {
             None
         } else {
-            Some(t0.min(t1))
+            let d = t0.min(t1);
+            let p = ray.source + d * ray.direction;
+            let n = p - self.center;
+            Some(Intersection::new(d, p, n))
         }
     }
 }
@@ -64,18 +67,26 @@ mod tests {
 
     #[test]
     fn test_intersect() {
-        let sphere = Sphere::new(Point3::new(1.0, 1.0, 1.0), 1.0, Color::new(1.0, 1.0, 1.0));
+        let sphere = Sphere::new(
+            Point3::new(1.0, 1.0, 1.0),
+            1.0,
+            Diffuse::new(Color::new(1.0, 1.0, 1.0), 1.0).into(),
+        );
         let ray = Ray {
             source: Point3::new(0.0, 0.0, 0.0),
             direction: Vector3::new(1.0, 1.0, 1.0).normalize(),
         };
         let result = sphere.intersect(&ray);
-        assert!(result.unwrap() - (3.0 as f32).sqrt() - 1.0 <= 1e-6);
+        assert!(result.unwrap().dist - (3.0 as f32).sqrt() - 1.0 <= 1e-6);
     }
 
     #[test]
     fn test_near_miss() {
-        let sphere = Sphere::new(Point3::new(1.0, 1.0, 1.0), 1.0, Color::new(1.0, 1.0, 1.0));
+        let sphere = Sphere::new(
+            Point3::new(1.0, 1.0, 1.0),
+            1.0,
+            Diffuse::new(Color::new(1.0, 1.0, 1.0), 1.0).into(),
+        );
         let ray = Ray {
             source: Point3::new(0.0, 0.0, 0.0),
             direction: Vector3::new(0.0, 0.0, 1.0),

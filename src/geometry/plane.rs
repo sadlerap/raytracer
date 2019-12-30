@@ -5,22 +5,22 @@ use nalgebra::*;
 pub struct Plane {
     pub(crate) vertex: Point3<f32>,
     pub(crate) normal: Vector3<f32>,
-    pub(crate) color: Color,
+    pub(crate) material: Material,
 }
 
 impl Plane {
-    pub fn new(vertex: Point3<f32>, normal: Vector3<f32>, color: Color) -> Plane {
+    pub fn new(vertex: Point3<f32>, normal: Vector3<f32>, material: Material) -> Plane {
         let normal = normal.normalize();
         Plane {
             vertex,
             normal,
-            color,
+            material,
         }
     }
 }
 
 impl Intersectable for Plane {
-    fn intersect(&self, ray: &Ray) -> Option<f32> {
+    fn intersect(&self, ray: &Ray) -> Option<Intersection> {
         let normal = &self.normal;
         let dot = normal.dot(&ray.direction);
 
@@ -34,7 +34,9 @@ impl Intersectable for Plane {
         let distance = v.dot(normal) / dot;
 
         if distance > 0.0 {
-            Some(distance)
+            let p = ray.source + distance * ray.direction;
+            let n = self.normal;
+            Some(Intersection::new(distance, p, n))
         } else {
             None
         }
@@ -55,14 +57,14 @@ mod tests {
         let p = Plane::new(
             Point3::new(0.0, 0.0, 1.0),
             Vector3::new(1.0, 0.0, 0.0),
-            Color::default(),
+            Diffuse::new(Color::default(), 1.0).into(),
         );
         let ray = Ray {
             source: Point3::new(0.0, 0.0, 0.0),
             direction: Vector3::new(0.0, 0.0, 1.0),
         };
 
-        assert_eq!(p.intersect(&ray), None);
+        assert!(p.intersect(&ray).is_none());
     }
 
     #[test]
@@ -70,14 +72,14 @@ mod tests {
         let p = Plane::new(
             Point3::new(1.0, 0.0, 0.0),
             Vector3::new(1.0, 0.0, 0.0),
-            Color::default(),
+            Diffuse::new(Color::default(), 1.0).into(),
         );
         let ray = Ray {
             source: Point3::new(0.0, 0.0, 0.0),
             direction: Vector3::new(-1.0, 0.0, 0.0),
         };
 
-        assert_eq!(p.intersect(&ray), None);
+        assert!(p.intersect(&ray).is_none());
     }
 
     #[test]
@@ -85,14 +87,14 @@ mod tests {
         let p = Plane::new(
             Point3::new(1.0, 0.0, 0.0),
             Vector3::new(-1.0, 0.0, 0.0),
-            Color::default(),
+            Diffuse::new(Color::default(), 1.0).into(),
         );
         let ray = Ray {
             source: Point3::new(0.0, 0.0, 0.0),
             direction: Vector3::new(1.0, 0.0, 0.0),
         };
 
-        assert_eq!(p.intersect(&ray), Some(1.0))
+        assert_eq!(p.intersect(&ray).unwrap().dist, 1.0)
     }
 
     #[test]
@@ -100,7 +102,7 @@ mod tests {
         let p = Plane::new(
             Point3::new(0.0, -1.0, -10.0),
             Vector3::new(0.0, 1.0, 0.0),
-            Color::default(),
+            Diffuse::new(Color::default(), 1.0).into(),
         );
         let ray = Ray {
             source: Point3::new(0.0, 0.0, 0.0),
