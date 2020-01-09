@@ -9,40 +9,47 @@ use std::fs::File;
 use std::io;
 
 fn main() -> io::Result<()> {
-    let mut scene = Scene::new(1920, 1080, 90.0, 100);
+    let light = Light::new(
+        Vector3::new(-1.0, -1.0, 1.0),
+        Color::new(1.0, 1.0, 1.0),
+        15.0,
+    );
+    let mut scene = Scene::new(1280, 720, 90.0, 100, Color::default(), light);
+
+    let depth = -1.5;
 
     scene.add_geometry(
         Sphere::new(
-            Point3::new(0.0, 0.0, 5.0),
+            Point3::new(4.0, depth + 1.0, 5.0),
             1.0,
-            Diffuse::new(Color::new(0.5, 0.0, 0.2), 0.8).into(),
+            Diffuse::new(Color::new(0.5, 0.0, 0.2), 0.4).into(),
         )
         .into(),
     );
 
     scene.add_geometry(
         Sphere::new(
-            Point3::new(1.0, 1.0, 4.0),
+            Point3::new(1.0, depth + 0.8, 4.0),
             0.8,
-            Diffuse::new(Color::new(1.0, 0.0, 1.0), 0.6).into(),
+            Diffuse::new(Color::new(1.0, 0.0, 1.0), 0.3).into(),
         )
         .into(),
     );
 
     scene.add_geometry(
         Sphere::new(
-            Point3::new(2.0, 1.0, 9.0),
+            Point3::new(-2.0, depth + 2.5, 6.0),
             2.5,
-            Diffuse::new(Color::new(0.0, 1.0, 0.0), 0.9).into(),
+            Diffuse::new(Color::new(0.0, 1.0, 0.0), 0.3).into(),
         )
         .into(),
     );
 
     scene.add_geometry(
         Plane::new(
-            Point3::new(0.0, -5.0, 10.0),
+            Point3::new(0.0, depth, 10.0),
             Vector3::new(0.0, 1.0, 0.0),
-            Diffuse::new(Color::new(0.2, 0.2, 1.0), 0.5).into(),
+            Diffuse::new(Color::new(0.4, 0.1, 0.3), 0.4).into(),
         )
         .into(),
     );
@@ -52,6 +59,5 @@ fn main() -> io::Result<()> {
         .map_or_else(|| File::create("./output.ppd"), File::create)
         .map(io::BufWriter::new)?;
 
-    scene.render(&mut file)?;
-    Ok(())
+    scene.render(&mut file)
 }

@@ -34,6 +34,14 @@ impl Color {
             (self.blue * 255.0) as u8,
         )
     }
+
+    pub fn clamp(&self) -> Color {
+        Color {
+            red: self.red.min(1.0).max(0.0),
+            blue: self.blue.min(1.0).max(0.0),
+            green: self.green.min(1.0).max(0.0),
+        }
+    }
 }
 
 impl Add for Color {
@@ -43,6 +51,17 @@ impl Add for Color {
             self.red + other.red,
             self.green + other.green,
             self.blue + other.blue,
+        )
+    }
+}
+
+impl Mul<Color> for Color {
+    type Output = Color;
+    fn mul(self, other: Color) -> Self::Output {
+        Color::new(
+            self.red * other.red,
+            self.green * other.green,
+            self.blue * other.blue,
         )
     }
 }
@@ -74,25 +93,45 @@ pub struct Ray {
     pub(crate) direction: Vector3<f32>,
 }
 
+impl Ray {
+    pub fn new(source: Point3<f32>, direction: Vector3<f32>) -> Ray {
+        Ray {
+            source,
+            direction: direction.normalize(),
+        }
+    }
+}
+
 /// Defines a scene
 pub struct Scene {
     pub(crate) height: u32,
     pub(crate) width: u32,
     pub(crate) samples: u32,
     pub(crate) fov: f32,
+    pub(crate) background: Color,
     pub(crate) geometry: Vec<Geometry>,
     pub(crate) tracing_depth: u32,
+    pub(crate) light: Light,
 }
 
 impl Scene {
-    pub fn new(width: u32, height: u32, fov: f32, samples: u32) -> Scene {
+    pub fn new(
+        width: u32,
+        height: u32,
+        fov: f32,
+        samples: u32,
+        background: Color,
+        light: Light,
+    ) -> Scene {
         Scene {
             height,
             width,
             samples,
             fov,
+            background,
             geometry: Vec::new(),
             tracing_depth: 3,
+            light,
         }
     }
 
@@ -121,14 +160,14 @@ impl Scene {
 
     pub(crate) fn trace(&self, ray: &Ray, depth: u32) -> Color {
         if depth >= self.tracing_depth {
-            Color::default()
+            self.background
         } else {
             self.geometry
                 .iter()
                 .filter_map(|geom| geom.intersect(&ray).map(|i| (geom, i)))
                 .min_by(|(_, i1), (_, i2)| (&i1.dist).partial_cmp(&i2.dist).unwrap())
                 .map_or_else(
-                    || Color::default(),
+                    || self.background,
                     |(geometry, intersection)| geometry.color(self, intersection, depth),
                 )
         }

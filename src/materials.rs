@@ -1,7 +1,6 @@
 use crate::prelude::*;
 use nalgebra::*;
 use rand::*;
-use rayon::prelude::*;
 
 /// Colors a scene
 pub trait Colorable {
@@ -25,35 +24,44 @@ impl Colorable for Diffuse {
     fn color(&self, scene: &Scene, i: Intersection, depth: u32) -> Color {
         let sphere_center = i.point + i.normal;
 
-        let gen_ray = || {
-            let mut point = (
+        let point = {
+            let mut point = Vector3::new(
                 random::<f32>().mul_add(2.0, -1.0),
                 random::<f32>().mul_add(2.0, -1.0),
                 random::<f32>().mul_add(2.0, -1.0),
             );
-            while (point.0 * point.0 + point.1 * point.1 + point.2 * point.2) >= 1.0 {
-                point = (
+            while point.magnitude_squared() >= 1.0 {
+                point = Vector3::new(
                     random::<f32>().mul_add(2.0, -1.0),
                     random::<f32>().mul_add(2.0, -1.0),
                     random::<f32>().mul_add(2.0, -1.0),
                 );
             }
-            let point = sphere_center + Vector3::new(point.0, point.1, point.2);
-
-            Ray {
-                source: i.point,
-                direction: (point - i.point).normalize(),
-            }
+            sphere_center + point
         };
 
-        let traced_color = (0..scene.samples)
-            .into_par_iter()
-            .map(|_| gen_ray())
-            .map(|ray| scene.trace(&ray, depth + 1))
-            .reduce(|| Color::default(), |acc, color| acc + color)
-            / scene.samples as f32;
+        let direction = (point - i.point).normalize();
+        let secondary_ray = Ray {
+            // step away from the surface to prevent "pox" from showing up
+            source: i.point + 1e-6 * direction,
+            direction,
+        };
+        let traced_color = scene.trace(&secondary_ray, depth + 1);
 
-        self.color.lerp(traced_color, self.albedo)
+        // basic lambertian lighting
+        let light_direction = -scene.light.direction;
+        let shadow_ray = Ray::new(i.point, light_direction);
+        let visible = !scene
+            .geometry
+            .iter()
+            .any(|g| g.intersect(&shadow_ray).is_some());
+        let intensity = if visible { scene.light.intensity } else { 0.0 };
+        let power = i.normal.dot(&light_direction).max(0.0) * intensity;
+        let reflected = self.albedo / std::f32::consts::PI;
+
+        let color = self.color.lerp(traced_color, self.albedo);
+        let color = color * scene.light.color * power * reflected;
+        color.clamp()
     }
 }
 

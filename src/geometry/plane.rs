@@ -43,6 +43,12 @@ impl Intersectable for Plane {
     }
 }
 
+impl Colorable for Plane {
+    fn color(&self, scene: &Scene, i: Intersection, depth: u32) -> Color {
+        self.material.color(scene, i, depth)
+    }
+}
+
 impl From<Plane> for Geometry {
     fn from(plane: Plane) -> Self {
         Geometry::Plane(plane)

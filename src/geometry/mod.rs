@@ -22,8 +22,8 @@ pub struct Intersection {
 impl Intersection {
     fn new(dist: f32, point: Point3<f32>, normal: Vector3<f32>) -> Intersection {
         Intersection {
-            dist: dist,
-            point: point,
+            dist,
+            point,
             normal: normal.normalize(),
         }
     }
@@ -37,8 +37,8 @@ pub enum Geometry {
 impl Colorable for Geometry {
     fn color(&self, scene: &Scene, i: Intersection, tracing_depth: u32) -> Color {
         match self {
-            Geometry::Sphere(s) => s.material.color(scene, i, tracing_depth),
-            Geometry::Plane(p) => p.material.color(scene, i, tracing_depth),
+            Geometry::Sphere(s) => s.color(scene, i, tracing_depth),
+            Geometry::Plane(p) => p.color(scene, i, tracing_depth),
         }
     }
 }

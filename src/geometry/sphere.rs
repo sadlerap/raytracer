@@ -1,4 +1,4 @@
-use nalgebra::{Point3, Vector3};
+use nalgebra::*;
 
 use super::*;
 use crate::prelude::*;
@@ -21,15 +21,25 @@ impl Sphere {
     }
 }
 
+impl Colorable for Sphere {
+    fn color(&self, scene: &Scene, i: Intersection, tracing_depth: u32) -> Color {
+        self.material.color(scene, i, tracing_depth)
+    }
+}
+
 impl Intersectable for Sphere {
     /// Determines whether the ray will intersect the sphere. See
     /// [here](https://bheisler.github.io/post/writing-raytracer-in-rust-part-2/)
     /// for more information on how this works.
     fn intersect(&self, ray: &Ray) -> Option<Intersection> {
         // length of leg a of the triangle
-        let direct_distance: Vector3<_> = self.center - ray.source;
+        let direct_distance = self.center - ray.source;
         // length of the hypotenuse
         let adjacent_leg = direct_distance.dot(&ray.direction);
+        if adjacent_leg.signum() < 0.0 {
+            return None;
+        }
+
         // length of the remaining side (squared)
         let d = direct_distance.dot(&direct_distance) - adjacent_leg.powi(2);
         let radius2 = self.radius.powi(2);
@@ -45,7 +55,13 @@ impl Intersectable for Sphere {
         if t0 < 0.0 && t1 < 0.0 {
             None
         } else {
-            let d = t0.min(t1);
+            let d = if t0 < 0.0 {
+                t1
+            } else if t1 < 0.0 {
+                t0
+            } else {
+                t0.min(t1)
+            };
             let p = ray.source + d * ray.direction;
             let n = p - self.center;
             Some(Intersection::new(d, p, n))
