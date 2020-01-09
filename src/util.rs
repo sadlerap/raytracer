@@ -38,8 +38,16 @@ impl Color {
     pub fn clamp(&self) -> Color {
         Color {
             red: self.red.min(1.0).max(0.0),
-            blue: self.blue.min(1.0).max(0.0),
             green: self.green.min(1.0).max(0.0),
+            blue: self.blue.min(1.0).max(0.0),
+        }
+    }
+
+    pub fn to_gamma(&self) -> Color {
+        Color {
+            red: self.red.sqrt(),
+            green: self.green.sqrt(),
+            blue: self.blue.sqrt(),
         }
     }
 }
@@ -190,7 +198,7 @@ impl Scene {
             .cartesian_product(0..self.height)
             .par_bridge() // iterate in parallel
             .map(|(x, y)| (x, y, self.trace_scene_ray(x, y)))
-            .map(|(x, y, color)| (x, y, color.to_rgb()))
+            .map(|(x, y, color)| (x, y, color.to_gamma().to_rgb()))
             .collect::<Vec<_>>()
             .into_iter()
             .sorted_by(|(x1, y1, _), (x2, y2, _)| {
