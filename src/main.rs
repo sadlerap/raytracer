@@ -13,17 +13,18 @@ fn main() -> io::Result<()> {
 
     let depth = -1.5;
 
-    scene.add_light(GlobalLight::new(
-        Vector3::new(-1.0, -1.0, 1.0),
-        Color::new(1.0, 1.0, 1.0),
-        15.0,
-    ));
+    scene.add_light(
+        SphericalLight::new(Point3::new(1.0, 1.0, 1.0), Color::new(1.0, 1.0, 1.0), 100.0).into(),
+    );
 
-    scene.add_light(GlobalLight::new(
-        Vector3::new(1.0, -1.0, 1.0),
-        Color::new(0.9, 1.0, 0.5),
-        15.0,
-    ));
+    scene.add_light(
+        GlobalLight::new(
+            Vector3::new(1.0, -1.0, 1.0),
+            Color::new(0.9, 1.0, 0.5),
+            15.0,
+        )
+        .into(),
+    );
 
     scene.add_geometry(
         Sphere::new(

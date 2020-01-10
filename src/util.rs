@@ -135,7 +135,7 @@ pub struct Scene {
     pub(crate) background: Color,
     pub(crate) geometry: Vec<Geometry>,
     pub(crate) tracing_depth: u32,
-    pub(crate) lights: Vec<GlobalLight>,
+    pub(crate) lights: Vec<Light>,
 }
 
 impl Scene {
@@ -157,7 +157,7 @@ impl Scene {
         self.geometry.push(object);
     }
 
-    pub fn add_light(&mut self, light: GlobalLight) {
+    pub fn add_light(&mut self, light: Light) {
         self.lights.push(light);
     }
 
