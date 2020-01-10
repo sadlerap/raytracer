@@ -9,14 +9,21 @@ use std::fs::File;
 use std::io;
 
 fn main() -> io::Result<()> {
-    let light = Light::new(
+    let mut scene = Scene::new(1280, 720, 90.0, 500, Color::default());
+
+    let depth = -1.5;
+
+    scene.add_light(GlobalLight::new(
         Vector3::new(-1.0, -1.0, 1.0),
         Color::new(1.0, 1.0, 1.0),
         15.0,
-    );
-    let mut scene = Scene::new(1280, 720, 90.0, 100, Color::default(), light);
+    ));
 
-    let depth = -1.5;
+    scene.add_light(GlobalLight::new(
+        Vector3::new(1.0, -1.0, 1.0),
+        Color::new(0.9, 1.0, 0.5),
+        15.0,
+    ));
 
     scene.add_geometry(
         Sphere::new(

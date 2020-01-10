@@ -1,7 +1,7 @@
 pub mod geometry;
+pub mod lighting;
+pub mod materials;
 pub mod prelude;
 pub mod util;
-pub mod materials;
-pub mod lighting;
 
 use crate::prelude::*;

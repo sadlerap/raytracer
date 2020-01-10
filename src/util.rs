@@ -63,6 +63,14 @@ impl Add for Color {
     }
 }
 
+impl AddAssign for Color {
+    fn add_assign(&mut self, rhs: Self) {
+        self.red += rhs.red;
+        self.green += rhs.green;
+        self.blue += rhs.blue;
+    }
+}
+
 impl Mul<Color> for Color {
     type Output = Color;
     fn mul(self, other: Color) -> Self::Output {
@@ -85,6 +93,14 @@ impl Mul<Color> for f32 {
     type Output = Color;
     fn mul(self, other: Color) -> Self::Output {
         other * self
+    }
+}
+
+impl MulAssign for Color {
+    fn mul_assign(&mut self, rhs: Self) {
+        self.red *= rhs.red;
+        self.green *= rhs.green;
+        self.blue *= rhs.blue;
     }
 }
 
@@ -119,18 +135,11 @@ pub struct Scene {
     pub(crate) background: Color,
     pub(crate) geometry: Vec<Geometry>,
     pub(crate) tracing_depth: u32,
-    pub(crate) light: Light,
+    pub(crate) lights: Vec<GlobalLight>,
 }
 
 impl Scene {
-    pub fn new(
-        width: u32,
-        height: u32,
-        fov: f32,
-        samples: u32,
-        background: Color,
-        light: Light,
-    ) -> Scene {
+    pub fn new(width: u32, height: u32, fov: f32, samples: u32, background: Color) -> Scene {
         Scene {
             height,
             width,
@@ -139,13 +148,17 @@ impl Scene {
             background,
             geometry: Vec::new(),
             tracing_depth: 3,
-            light,
+            lights: Vec::new(),
         }
     }
 
     /// Adds an object to the scene.
     pub fn add_geometry(&mut self, object: Geometry) {
         self.geometry.push(object);
+    }
+
+    pub fn add_light(&mut self, light: GlobalLight) {
+        self.lights.push(light);
     }
 
     /// Creates a prime ray for the pixel at the coordinate (x, y) in image space.  This uses the

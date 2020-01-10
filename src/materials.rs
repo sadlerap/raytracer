@@ -47,20 +47,24 @@ impl Colorable for Diffuse {
             direction,
         };
         let traced_color = scene.trace(&secondary_ray, depth + 1);
+        let surface_color = self.color.lerp(traced_color, self.albedo);
+        let mut color = Color::default();
 
-        // basic lambertian lighting
-        let light_direction = -scene.light.direction;
-        let shadow_ray = Ray::new(i.point, light_direction);
-        let visible = !scene
-            .geometry
-            .iter()
-            .any(|g| g.intersect(&shadow_ray).is_some());
-        let intensity = if visible { scene.light.intensity } else { 0.0 };
-        let power = i.normal.dot(&light_direction).max(0.0) * intensity;
-        let reflected = self.albedo / std::f32::consts::PI;
+        for l in &scene.lights {
+            // basic lambertian lighting
+            let light_direction = -l.direction;
+            let shadow_ray = Ray::new(i.point, light_direction);
+            let visible = !scene
+                .geometry
+                .iter()
+                .map(|g| g.intersect(&shadow_ray))
+                .any(|r| r.is_some());
+            let intensity = if visible { l.intensity } else { 0.0 };
+            let power = i.normal.dot(&light_direction).max(0.0) * intensity;
+            let reflected = self.albedo / std::f32::consts::PI;
 
-        let color = self.color.lerp(traced_color, self.albedo);
-        let color = color * scene.light.color * power * reflected;
+            color += surface_color * l.color * power * reflected;
+        }
         color.clamp()
     }
 }
