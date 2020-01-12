@@ -16,7 +16,6 @@ pub struct Color {
     pub(crate) green: f32,
     pub(crate) blue: f32,
 }
-
 impl Color {
     /// Constructs a new color
     pub fn new(red: f32, green: f32, blue: f32) -> Color {
@@ -43,11 +42,22 @@ impl Color {
         }
     }
 
+    pub const GAMMA: f32 = 2.2;
+    pub const INV_GAMMA: f32 = 1.0 / 2.2;
+
+    pub fn from_gamma(&self) -> Color {
+        Color {
+            red: self.red.powf(Color::GAMMA),
+            green: self.green.powf(Color::GAMMA),
+            blue: self.blue.powf(Color::GAMMA),
+        }
+    }
+
     pub fn to_gamma(&self) -> Color {
         Color {
-            red: self.red.sqrt(),
-            green: self.green.sqrt(),
-            blue: self.blue.sqrt(),
+            red: self.red.powf(Color::INV_GAMMA),
+            green: self.green.powf(Color::INV_GAMMA),
+            blue: self.blue.powf(Color::INV_GAMMA),
         }
     }
 }

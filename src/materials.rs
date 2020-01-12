@@ -93,7 +93,7 @@ impl Colorable for Reflective {
         let reflected_color = scene
             .trace(&reflection, depth + 1)
             .map(|i| i.elem.color(scene, &i, depth + 1))
-            .unwrap_or_default();
+            .unwrap_or(scene.background) * self.albedo;
 
         let reflected = self.albedo / std::f32::consts::PI;
         scene

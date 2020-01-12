@@ -14,13 +14,18 @@ fn main() -> io::Result<()> {
     let depth = -1.5;
 
     scene.add_light(
-        SphericalLight::new(Point3::new(1.0, 1.0, 1.0), Color::new(1.0, 1.0, 1.0), 100.0).into(),
+        SphericalLight::new(
+            Point3::new(1.0, 1.0, 1.0),
+            Color::new(1.0, 1.0, 1.0).from_gamma(),
+            100.0,
+        )
+        .into(),
     );
 
     scene.add_light(
         GlobalLight::new(
             Vector3::new(1.0, -1.0, 1.0),
-            Color::new(0.9, 1.0, 0.5),
+            Color::new(0.9, 1.0, 0.5).from_gamma(),
             15.0,
         )
         .into(),
@@ -30,7 +35,7 @@ fn main() -> io::Result<()> {
         Sphere::new(
             Point3::new(4.0, depth + 1.0, 5.0),
             1.0,
-            Diffuse::new(Color::new(0.5, 0.0, 0.2), 0.4).into(),
+            Diffuse::new(Color::new(0.5, 0.0, 0.2).from_gamma(), 0.4).into(),
         )
         .into(),
     );
@@ -39,7 +44,7 @@ fn main() -> io::Result<()> {
         Sphere::new(
             Point3::new(1.0, depth + 0.8, 4.0),
             0.8,
-            Diffuse::new(Color::new(1.0, 0.0, 1.0), 0.3).into(),
+            Diffuse::new(Color::new(1.0, 0.0, 1.0).from_gamma(), 0.3).into(),
         )
         .into(),
     );
@@ -48,7 +53,7 @@ fn main() -> io::Result<()> {
         Sphere::new(
             Point3::new(-3.0, depth + 2.5, 6.0),
             2.5,
-            Diffuse::new(Color::new(0.0, 1.0, 0.0), 0.3).into(),
+            Diffuse::new(Color::new(0.0, 1.0, 0.0).from_gamma(), 0.3).into(),
         )
         .into(),
     );
@@ -57,7 +62,7 @@ fn main() -> io::Result<()> {
         Plane::new(
             Point3::new(0.0, depth, 10.0),
             Vector3::new(0.0, 1.0, 0.0),
-            Diffuse::new(Color::new(0.4, 0.1, 0.3), 0.4).into(),
+            Diffuse::new(Color::new(0.4, 0.1, 0.3).from_gamma(), 0.4).into(),
         )
         .into(),
     );
@@ -66,8 +71,9 @@ fn main() -> io::Result<()> {
         Sphere::new(
             Point3::new(1.0, depth + 1.5, 6.0),
             1.5,
-            Reflective::new(Color::new(0.5, 0.0, 0.5), 0.4).into()
-        ).into()
+            Reflective::new(Color::new(0.5, 0.0, 0.5).from_gamma(), 0.4).into(),
+        )
+        .into(),
     );
 
     let mut file = env::args()
