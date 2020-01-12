@@ -6,11 +6,11 @@ pub enum Light {
     Spherical(SphericalLight),
 }
 
-impl Light {
-    pub fn light(&self, scene: &Scene, i: &Intersection) -> Color {
+impl Colorable for Light {
+    fn color(&self, scene: &Scene, i: &Intersection, depth: u32) -> Color {
         match &self {
-            Light::Global(gl) => gl.light(scene, i),
-            Light::Spherical(sl) => sl.light(scene, i),
+            Light::Global(gl) => gl.color(scene, i, depth),
+            Light::Spherical(sl) => sl.color(scene, i, depth),
         }
     }
 }
@@ -30,19 +30,14 @@ impl GlobalLight {
             intensity,
         }
     }
+}
 
-    pub fn light(&self, scene: &Scene, i: &Intersection) -> Color {
+impl Colorable for GlobalLight {
+    fn color(&self, scene: &Scene, i: &Intersection, depth: u32) -> Color {
         // basic lambertian lighting
         let light_direction = -self.direction;
         let shadow_ray = Ray::new(i.point, light_direction);
-        let visible = !scene
-            .geometry
-            .iter()
-            .map(|g| {
-                g.intersect(&shadow_ray)
-                    .map(|d| Intersection::new(d, &shadow_ray, g))
-            })
-            .any(|r| r.is_some());
+        let visible = scene.trace(&shadow_ray, depth + 1).is_none();
         let intensity = if visible { self.intensity } else { 0.0 };
         let power = i.surface_normal().dot(&light_direction).max(0.0) * intensity;
         self.color * power
@@ -69,19 +64,14 @@ impl SphericalLight {
             intensity,
         }
     }
+}
 
-    pub fn light(&self, scene: &Scene, i: &Intersection) -> Color {
+impl Colorable for SphericalLight {
+    fn color(&self, scene: &Scene, i: &Intersection, depth: u32) -> Color {
         let light_direction = self.pos - i.point;
         let norm = light_direction.norm();
         let shadow_ray = Ray::new(i.point, light_direction);
-        let shadow_intersection = scene
-            .geometry
-            .iter()
-            .filter_map(|g| {
-                g.intersect(&shadow_ray)
-                    .map(|d| Intersection::new(d, &shadow_ray, g))
-            })
-            .min_by(|i1, i2| (&i1.dist).partial_cmp(&i2.dist).unwrap());
+        let shadow_intersection = scene.trace(&shadow_ray, depth + 1);
         let visible = shadow_intersection.is_none() || shadow_intersection.unwrap().dist > norm;
 
         let intensity = if visible {

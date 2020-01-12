@@ -46,7 +46,7 @@ fn main() -> io::Result<()> {
 
     scene.add_geometry(
         Sphere::new(
-            Point3::new(-2.0, depth + 2.5, 6.0),
+            Point3::new(-3.0, depth + 2.5, 6.0),
             2.5,
             Diffuse::new(Color::new(0.0, 1.0, 0.0), 0.3).into(),
         )
@@ -60,6 +60,14 @@ fn main() -> io::Result<()> {
             Diffuse::new(Color::new(0.4, 0.1, 0.3), 0.4).into(),
         )
         .into(),
+    );
+
+    scene.add_geometry(
+        Sphere::new(
+            Point3::new(1.0, depth + 1.5, 6.0),
+            1.5,
+            Reflective::new(Color::new(0.5, 0.0, 0.5), 0.4).into()
+        ).into()
     );
 
     let mut file = env::args()

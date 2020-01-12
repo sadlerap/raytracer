@@ -18,20 +18,16 @@ pub struct Intersection<'a> {
     pub(crate) dist: f32,
     pub(crate) point: Point3<f32>,
     pub(crate) elem: &'a Geometry,
+    pub(crate) incoming: &'a Ray,
 }
 
 impl<'a> Intersection<'a> {
-    pub fn new<'b>(
-        dist: f32,
-        ray: &Ray,
-        elem: &'a Geometry,
-    ) -> Intersection<'b>
-        where 'a: 'b
-    {
+    pub fn new(dist: f32, ray: &'a Ray, elem: &'a Geometry) -> Intersection<'a> {
         Intersection {
             dist,
             point: ray.source + dist * ray.direction,
             elem,
+            incoming: ray,
         }
     }
 
@@ -47,7 +43,7 @@ pub enum Geometry {
 }
 
 impl Colorable for Geometry {
-    fn color(&self, scene: &Scene, i: Intersection, tracing_depth: u32) -> Color {
+    fn color(&self, scene: &Scene, i: &Intersection, tracing_depth: u32) -> Color {
         match self {
             Geometry::Sphere(s) => s.color(scene, i, tracing_depth),
             Geometry::Plane(p) => p.color(scene, i, tracing_depth),

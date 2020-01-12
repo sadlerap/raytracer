@@ -22,7 +22,7 @@ impl Sphere {
 }
 
 impl Colorable for Sphere {
-    fn color(&self, scene: &Scene, i: Intersection, tracing_depth: u32) -> Color {
+    fn color(&self, scene: &Scene, i: &Intersection, tracing_depth: u32) -> Color {
         self.material.color(scene, i, tracing_depth)
     }
 }

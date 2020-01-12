@@ -112,6 +112,7 @@ impl Div<f32> for Color {
 }
 
 /// A ray used in tracing the scene.
+#[derive(Debug, Clone)]
 pub struct Ray {
     pub(crate) source: Point3<f32>,
     pub(crate) direction: Vector3<f32>,
@@ -123,6 +124,13 @@ impl Ray {
             source,
             direction: direction.normalize(),
         }
+    }
+
+    pub fn reflect(normal: Vector3<f32>, incident: Vector3<f32>, intersection: &Point3<f32>, bias: f32) -> Ray {
+        Ray::new(
+            intersection + (normal * bias),
+            incident - (2.0 * incident.dot(&normal) * normal)
+        )
     }
 }
 
@@ -179,7 +187,7 @@ impl Scene {
         }
     }
 
-    pub(crate) fn trace(&self, ray: &Ray, depth: u32) -> Option<Intersection> {
+    pub(crate) fn trace<'a>(&'a self, ray: &'a Ray, depth: u32) -> Option<Intersection<'a>> {
         if depth >= self.tracing_depth {
             None
         } else {
@@ -192,12 +200,14 @@ impl Scene {
 
     /// Trace a ray
     fn trace_scene_ray(&self, x: u32, y: u32) -> Color {
-        (0..self.samples)
-            .map(|_| self.create_camera_ray(x, y))
-            .map(|ray| self.trace(&ray, 0))
-            .map(|i| i.map_or_else(|| self.background, |i| i.elem.color(self, i, 0)))
-            .fold(Color::default(), |acc, color| acc + color)
-            / self.samples as f32
+        let mut color = Color::default();
+        for _ in 0..self.samples {
+            let ray = self.create_camera_ray(x, y);
+            color += self
+                .trace(&ray, 0)
+                .map_or_else(|| self.background, |i| i.elem.color(self, &i, 0));
+        }
+        color / self.samples as f32
     }
 
     pub fn render<T>(&self, writer: &mut T) -> io::Result<()>
