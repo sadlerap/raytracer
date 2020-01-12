@@ -38,10 +38,13 @@ impl GlobalLight {
         let visible = !scene
             .geometry
             .iter()
-            .map(|g| g.intersect(&shadow_ray))
+            .map(|g| {
+                g.intersect(&shadow_ray)
+                    .map(|d| Intersection::new(d, &shadow_ray, g))
+            })
             .any(|r| r.is_some());
         let intensity = if visible { self.intensity } else { 0.0 };
-        let power = i.normal.dot(&light_direction).max(0.0) * intensity;
+        let power = i.surface_normal().dot(&light_direction).max(0.0) * intensity;
         self.color * power
     }
 }
@@ -74,7 +77,10 @@ impl SphericalLight {
         let shadow_intersection = scene
             .geometry
             .iter()
-            .filter_map(|g| g.intersect(&shadow_ray))
+            .filter_map(|g| {
+                g.intersect(&shadow_ray)
+                    .map(|d| Intersection::new(d, &shadow_ray, g))
+            })
             .min_by(|i1, i2| (&i1.dist).partial_cmp(&i2.dist).unwrap());
         let visible = shadow_intersection.is_none() || shadow_intersection.unwrap().dist > norm;
 
@@ -83,7 +89,7 @@ impl SphericalLight {
         } else {
             0.0
         };
-        let power = i.normal.dot(&light_direction).max(0.0) * intensity;
+        let power = i.surface_normal().dot(&light_direction).max(0.0) * intensity;
         self.color * power
     }
 }

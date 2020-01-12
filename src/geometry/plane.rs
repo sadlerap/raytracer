@@ -2,6 +2,7 @@ use super::*;
 use crate::Ray;
 use nalgebra::*;
 
+#[derive(Debug)]
 pub struct Plane {
     pub(crate) vertex: Point3<f32>,
     pub(crate) normal: Vector3<f32>,
@@ -20,7 +21,7 @@ impl Plane {
 }
 
 impl Intersectable for Plane {
-    fn intersect(&self, ray: &Ray) -> Option<Intersection> {
+    fn intersect(&self, ray: &Ray) -> Option<f32> {
         let normal = &self.normal;
         let dot = normal.dot(&ray.direction);
 
@@ -34,12 +35,14 @@ impl Intersectable for Plane {
         let distance = v.dot(normal) / dot;
 
         if distance > 0.0 {
-            let p = ray.source + distance * ray.direction;
-            let n = self.normal;
-            Some(Intersection::new(distance, p, n))
+            Some(distance)
         } else {
             None
         }
+    }
+
+    fn surface_normal(&self, _: &Point3<f32>) -> Vector3<f32> {
+        self.normal
     }
 }
 

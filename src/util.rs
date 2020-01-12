@@ -179,18 +179,14 @@ impl Scene {
         }
     }
 
-    pub(crate) fn trace(&self, ray: &Ray, depth: u32) -> Color {
+    pub(crate) fn trace(&self, ray: &Ray, depth: u32) -> Option<Intersection> {
         if depth >= self.tracing_depth {
-            self.background
+            None
         } else {
             self.geometry
                 .iter()
-                .filter_map(|geom| geom.intersect(&ray).map(|i| (geom, i)))
-                .min_by(|(_, i1), (_, i2)| (&i1.dist).partial_cmp(&i2.dist).unwrap())
-                .map_or_else(
-                    || self.background,
-                    |(geometry, intersection)| geometry.color(self, intersection, depth),
-                )
+                .filter_map(|g| g.intersect(&ray).map(|i| Intersection::new(i, &ray, g)))
+                .min_by(|i1, i2| (&i1.dist).partial_cmp(&i2.dist).unwrap())
         }
     }
 
@@ -199,6 +195,7 @@ impl Scene {
         (0..self.samples)
             .map(|_| self.create_camera_ray(x, y))
             .map(|ray| self.trace(&ray, 0))
+            .map(|i| i.map_or_else(|| self.background, |i| i.elem.color(self, i, 0)))
             .fold(Color::default(), |acc, color| acc + color)
             / self.samples as f32
     }

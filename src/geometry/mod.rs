@@ -9,26 +9,38 @@ pub use sphere::*;
 
 pub trait Intersectable {
     /// Determines whether the ray will intersect the given object
-    fn intersect(&self, ray: &Ray) -> Option<Intersection>;
+    fn intersect(&self, ray: &Ray) -> Option<f32>;
+    fn surface_normal(&self, hit_point: &Point3<f32>) -> Vector3<f32>;
 }
 
 #[derive(Debug)]
-pub struct Intersection {
+pub struct Intersection<'a> {
     pub(crate) dist: f32,
     pub(crate) point: Point3<f32>,
-    pub(crate) normal: Vector3<f32>,
+    pub(crate) elem: &'a Geometry,
 }
 
-impl Intersection {
-    fn new(dist: f32, point: Point3<f32>, normal: Vector3<f32>) -> Intersection {
+impl<'a> Intersection<'a> {
+    pub fn new<'b>(
+        dist: f32,
+        ray: &Ray,
+        elem: &'a Geometry,
+    ) -> Intersection<'b>
+        where 'a: 'b
+    {
         Intersection {
             dist,
-            point,
-            normal: normal.normalize(),
+            point: ray.source + dist * ray.direction,
+            elem,
         }
+    }
+
+    pub fn surface_normal(&self) -> Vector3<f32> {
+        self.elem.surface_normal(&self.point)
     }
 }
 
+#[derive(Debug)]
 pub enum Geometry {
     Sphere(Sphere),
     Plane(Plane),
@@ -44,10 +56,17 @@ impl Colorable for Geometry {
 }
 
 impl Intersectable for Geometry {
-    fn intersect(&self, ray: &Ray) -> Option<Intersection> {
+    fn intersect(&self, ray: &Ray) -> Option<f32> {
         match self {
             Geometry::Sphere(sphere) => sphere.intersect(ray),
             Geometry::Plane(plane) => plane.intersect(ray),
+        }
+    }
+
+    fn surface_normal(&self, hit_point: &Point3<f32>) -> Vector3<f32> {
+        match self {
+            Geometry::Sphere(s) => s.surface_normal(hit_point),
+            Geometry::Plane(p) => p.surface_normal(hit_point),
         }
     }
 }

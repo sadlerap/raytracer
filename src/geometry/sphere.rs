@@ -31,7 +31,7 @@ impl Intersectable for Sphere {
     /// Determines whether the ray will intersect the sphere. See
     /// [here](https://bheisler.github.io/post/writing-raytracer-in-rust-part-2/)
     /// for more information on how this works.
-    fn intersect(&self, ray: &Ray) -> Option<Intersection> {
+    fn intersect(&self, ray: &Ray) -> Option<f32> {
         // length of leg a of the triangle
         let direct_distance = self.center - ray.source;
         // length of the hypotenuse
@@ -62,10 +62,12 @@ impl Intersectable for Sphere {
             } else {
                 t0.min(t1)
             };
-            let p = ray.source + d * ray.direction;
-            let n = p - self.center;
-            Some(Intersection::new(d, p, n))
+            Some(d)
         }
+    }
+
+    fn surface_normal(&self, hit_point: &Point3<f32>) -> Vector3<f32> {
+        (hit_point - self.center).normalize()
     }
 }
 
