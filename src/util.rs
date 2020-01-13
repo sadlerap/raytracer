@@ -136,10 +136,15 @@ impl Ray {
         }
     }
 
-    pub fn reflect(normal: Vector3<f32>, incident: Vector3<f32>, intersection: &Point3<f32>, bias: f32) -> Ray {
+    pub fn reflect(
+        normal: Vector3<f32>,
+        incident: Vector3<f32>,
+        intersection: &Point3<f32>,
+        bias: f32,
+    ) -> Ray {
         Ray::new(
             intersection + (normal * bias),
-            incident - (2.0 * incident.dot(&normal) * normal)
+            incident - (2.0 * incident.dot(&normal) * normal),
         )
     }
 }

@@ -71,7 +71,7 @@ fn main() -> io::Result<()> {
         Sphere::new(
             Point3::new(1.0, depth + 1.5, 6.0),
             1.5,
-            Reflective::new(Color::new(0.5, 0.0, 0.5).from_gamma(), 0.4).into(),
+            Reflective::new(Color::new(0.1, 0.0, 0.1).from_gamma(), 0.4).into(),
         )
         .into(),
     );

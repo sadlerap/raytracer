@@ -80,10 +80,7 @@ pub struct Reflective {
 
 impl Reflective {
     pub fn new(color: Color, albedo: f32) -> Reflective {
-        Reflective {
-            color,
-            albedo,
-        }
+        Reflective { color, albedo }
     }
 }
 
@@ -93,16 +90,8 @@ impl Colorable for Reflective {
         let reflected_color = scene
             .trace(&reflection, depth + 1)
             .map(|i| i.elem.color(scene, &i, depth + 1))
-            .unwrap_or(scene.background) * self.albedo;
-
-        let reflected = self.albedo / std::f32::consts::PI;
-        scene
-            .lights
-            .iter()
-            .map(|l| l.color(scene, &i, depth))
-            .map(|c| reflected_color * c * reflected)
-            .fold(Color::default(), |acc, item| acc + item)
-            .clamp()
+            .unwrap_or(scene.background);
+        self.color.lerp(reflected_color, self.albedo)
     }
 }
 
