@@ -271,7 +271,7 @@ mod tests {
             1.0,
             Diffuse::new(Color::new(1.0, 1.0, 1.0), 1.0).into(),
         );
-        let mut scene = Scene::new(4, 3, 90.0, 100);
+        let mut scene = Scene::new(4, 3, 90.0, 100, Color::default());
         scene.add_geometry(sphere.into());
         let result = scene.trace_scene_ray(3, 2);
         assert_eq!(result, color);

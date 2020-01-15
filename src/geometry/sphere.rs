@@ -95,7 +95,7 @@ mod tests {
             direction: Vector3::new(1.0, 1.0, 1.0).normalize(),
         };
         let result = sphere.intersect(&ray);
-        assert!(result.unwrap().dist - (3.0 as f32).sqrt() - 1.0 <= 1e-6);
+        assert!(result.unwrap() - (3.0 as f32).sqrt() - 1.0 <= 1e-6);
     }
 
     #[test]

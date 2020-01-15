@@ -103,7 +103,7 @@ mod tests {
             direction: Vector3::new(1.0, 0.0, 0.0),
         };
 
-        assert_eq!(p.intersect(&ray).unwrap().dist, 1.0)
+        assert_eq!(p.intersect(&ray).unwrap(), 1.0)
     }
 
     #[test]
