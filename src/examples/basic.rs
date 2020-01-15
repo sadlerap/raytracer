@@ -1,6 +1,6 @@
-extern crate raytracer;
 extern crate itertools;
 extern crate nalgebra;
+extern crate raytracer;
 
 use nalgebra::*;
 use raytracer::prelude::*;
