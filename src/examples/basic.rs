@@ -1,3 +1,4 @@
+extern crate raytracer;
 extern crate itertools;
 extern crate nalgebra;
 
