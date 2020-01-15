@@ -5,11 +5,12 @@ Developed as part of coursework for Computer Graphics at [THU](https://www.hs-ul
 
 # Features
 Right now, this is very bare-bones.  Features planned:
-* [ ] Lighting
-    * [ ] Global lighting (i.e. sunlight)
-    * [ ] Point lighting
+* [x] Lighting
+    * [x] Global lighting (i.e. sunlight)
+    * [x] Point lighting
     * [ ] Emissive materials
-* [ ] Diffuse surfaces
+* [x] Diffuse surfaces
+* [x] Reflective surfaces
 * [ ] Refractive materials
 
 # Resources
