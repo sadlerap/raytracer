@@ -176,12 +176,18 @@ impl Scene {
     }
 
     /// Adds an object to the scene.
-    pub fn add_geometry(&mut self, object: Geometry) {
-        self.geometry.push(object);
+    pub fn add_geometry<G>(&mut self, object: G)
+    where
+        G: Into<Geometry>,
+    {
+        self.geometry.push(object.into());
     }
 
-    pub fn add_light(&mut self, light: Light) {
-        self.lights.push(light);
+    pub fn add_light<L>(&mut self, light: L)
+    where
+        L: Into<Light>,
+    {
+        self.lights.push(light.into());
     }
 
     /// Creates a prime ray for the pixel at the coordinate (x, y) in image space.  This uses the
@@ -272,7 +278,7 @@ mod tests {
             Diffuse::new(Color::new(1.0, 1.0, 1.0), 1.0).into(),
         );
         let mut scene = Scene::new(4, 3, 90.0, 100, Color::default());
-        scene.add_geometry(sphere.into());
+        scene.add_geometry(sphere);
         let result = scene.trace_scene_ray(3, 2);
         assert_eq!(result, color);
     }

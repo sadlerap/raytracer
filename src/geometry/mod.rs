@@ -1,6 +1,7 @@
-pub mod plane;
 /// All various kinds of scene geometry: Spheres, Planes, etc.
-pub mod sphere;
+
+mod plane;
+mod sphere;
 
 use crate::prelude::*;
 use nalgebra::*;
